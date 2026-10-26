@@ -19,7 +19,7 @@ static constexpr bn::fixed MIN_Y = -HALF_SCREEN_HEIGHT;
 static constexpr bn::fixed MAX_Y = HALF_SCREEN_HEIGHT;
 
 // Starting speed of a bouncer
-static constexpr bn::fixed BASE_SPEED = 2;
+//static constexpr bn::fixed BASE_SPEED = 2;
 
 // Maximum number of bouncers on screen at once
 static constexpr int MAX_BOUNCERS = 20;
@@ -32,9 +32,9 @@ class Bouncer {
         bn::fixed y_speed;
 
         //constructor, everytime we make a BOUNCER we make a sprite with a speed
-        Bouncer(bn::fixed x_start, bn::fixed y_start) : 
+        Bouncer(bn::fixed x_start, bn::fixed y_start, bn::random& random) : 
             sprite(bn::sprite_items::dot.create_sprite(x_start, y_start)),
-            x_speed(BASE_SPEED), y_speed(BASE_SPEED) {
+            x_speed(random.get_unbiased_int(1,4)), y_speed(random.get_unbiased_int(1,4)) {
         }
 
         void update() {
@@ -103,10 +103,10 @@ bn::fixed average_x(bn::vector<Bouncer, MAX_BOUNCERS>& sprites) {
     return x_average;
 }
 
-void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers, bn::fixed start_x, bn::fixed start_y) {
+void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers, bn::fixed start_x, bn::fixed start_y, bn::random& random) {
     // Only add if we're below the maximum
     if(bouncers.size() < bouncers.max_size()) {
-        bouncers.push_back(Bouncer(start_x, start_y));
+        bouncers.push_back(Bouncer(start_x, start_y, random));
     }
 }
 
@@ -114,6 +114,7 @@ void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers, bn::fixed start_x,
 
 int main() {
     bn::core::init();
+    bn::random random;
 
     // Sprites and x speeds of bouncers
     // Items with the same index correspond to each other
@@ -136,7 +137,7 @@ int main() {
         }
 
         if(bn::keypad::a_pressed()) {
-            add_bouncer(bouncers, 0, y_spawn);
+            add_bouncer(bouncers, 0, y_spawn, random);
         }
 
         //for each bouncer(& the actual bouncers) in the vector
