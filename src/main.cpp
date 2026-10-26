@@ -62,12 +62,17 @@ class Bouncer {
 };
 
 //the & gives you access to the actual item in memory as opposed to making a copy
-bn::fixed average_x(bn::vector<bn::sprite_ptr, MAX_BOUNCERS>& sprites) {
+bn::fixed average_x(bn::vector<Bouncer, MAX_BOUNCERS>& sprites) {
     // Add all x positions together        
     bn::fixed x_sum = 0;
-    for(bn::sprite_ptr sprite : sprites) {
-        x_sum += sprite.x();
+
+    for(Bouncer& b : sprites) {
+        x_sum += b.sprite.x();
     }
+
+    // for(bn::sprite_ptr sprite : sprites) {
+    //     x_sum += sprite.x();
+    // }
 
     bn::fixed x_average= x_sum;
 
@@ -107,10 +112,10 @@ int main() {
     //our game loop
     while(true) {
         // // if B is pressed print the average to the console
-        // if(bn::keypad::b_pressed()) {
-        //     bn::fixed x_average = average_x(sprites);
-        //     BN_LOG("Average x: ", x_average);
-        // }
+        if(bn::keypad::b_pressed()) {
+            bn::fixed x_average = average_x(bouncers);
+            BN_LOG("Average x: ", x_average);
+        }
 
         if(bn::keypad::a_pressed()) {
             add_bouncer(bouncers, 0, y_spawn);
