@@ -8,6 +8,7 @@
 #include <bn_log.h>
 
 #include "bn_sprite_items_dot.h"
+#include "bn_sprite_items_dust.h"
 
 // Set max/min x position to be the edges of the display
 static constexpr int HALF_SCREEN_WIDTH = bn::display::width() / 2;
@@ -31,15 +32,28 @@ class Bouncer {
         bn::fixed x_speed;
         bn::fixed y_speed;
 
+        // 0 is a normal donut, 1-59 dust, 60 remove
+        int pop_timer = 0;
+
         //constructor, everytime we make a BOUNCER we make a sprite with a speed
         Bouncer(bn::fixed x_start, bn::fixed y_start, bn::random& random) : 
             sprite(bn::sprite_items::dot.create_sprite(x_start, y_start)),
             x_speed(random.get_unbiased_int(1,4)), y_speed(random.get_unbiased_int(1,4)) {
         }
 
-        void update() {
+        void update(bn::random& random) {
+
+            // if the donut has popped begin march to death
+            if (pop_timer > 0) {
+                pop_timer++;
+            }
+
             bn::fixed x = sprite.x();
             bn::fixed y = sprite.y();
+
+            //sometimes the donuts explode when they hit walls
+            bool hit_wall = false;
+
 
             // Update x position by adding speed
             x += x_speed;
@@ -51,12 +65,14 @@ class Bouncer {
                 // Snap back to screen and reverse direction
                 x = MAX_X;
                 x_speed *=-1;
+                hit_wall = true;
             }
             //if we've got off the screen on the top
             if(y > MAX_Y) {
                 // snap back to screen and reverse direction
                 y = MAX_Y;
                 y_speed *=-1;
+                hit_wall = true;
             }
 
             // If we've gone off the screen on the left
@@ -64,16 +80,39 @@ class Bouncer {
                 // Snap back to screen and reverse direction
                 x = MIN_X;
                 x_speed *= -1;
+                hit_wall = true;
             }
 
             //if we've got off the screen on the bottom
             if(y < MIN_Y) {
                 y = MIN_Y;
                 y_speed *= -1;
+                hit_wall = true;
             }
 
             sprite.set_x(x);
             sprite.set_y(y);
+
+            if (hit_wall && pop_timer == 0) {
+                //determine if the donut is unlucky enough to pop
+                if (random.get_unbiased_int(0,100) < 33) {
+                    //replace sprite withe new popped sprite
+                    sprite.set_item(bn::sprite_items::dust);
+                    pop_timer = 1;                    
+                }
+            }
+        }
+
+        //counter for popped bouncers
+        bool pop_count() {
+            if(pop_timer > 0) {
+                pop_timer++;
+            }
+            if (pop_timer >= 30) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
     private:
@@ -142,7 +181,17 @@ int main() {
 
         //for each bouncer(& the actual bouncers) in the vector
         for(Bouncer& b : bouncers) {
-            b.update();
+            b.update(random);
+        }
+
+        //loop through the bouncers check for pop and expired ones
+        for(int i = bouncers.size() - 1; i >= 0; i--) {
+            if(bouncers[i].pop_count()) {
+                //replace the bouncer who has expired with the last bouncer in the vector
+                bouncers[i] = bn::move(bouncers.back());
+                //remove the last bouncer in the vector
+                bouncers.pop_back();
+            }
         }
 
         y_spawn += 1;
