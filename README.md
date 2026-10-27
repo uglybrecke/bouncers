@@ -5,4 +5,6 @@ An exercise to learn about functions and classes.
 
 A simple game where you make pink frosted donuts and they bounce around until they pop!
 
+https://uglybrecke.github.io/bouncers/
+
 Please find instructions in [instructions.md](instructions.md).
