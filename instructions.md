@@ -22,7 +22,7 @@ YOU MUST BE MAKING FREQUENT COMMITS THROUGHOUT!
     
     If all is working well at this point you should see behavior that looks like this:
     
-    ![Sample recording of balls bouncing in random directions](./sample.gif)
+    ![Sample recording of balls bouncing in random directions](./donuts_pop.gif)
 1. Make a new sprite to replace the yellow dot
 1. Choose at least one of the extensions (see below section) or come up with one of your own!
 1. Make a GIF of your game.
